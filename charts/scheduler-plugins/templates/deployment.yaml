@@ -1,0 +1,130 @@
+{{- if .Values.controller.enabled -}}
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ include "scheduler-plugins.fullname" . }}-controller
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "scheduler-plugins.labels" . | nindent 4 }}
+    component: controller
+spec:
+  replicas: {{ .Values.controller.replicaCount }}
+  {{- with .Values.controller.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "scheduler-plugins.selectorLabels" . | nindent 6 }}
+      component: controller
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "scheduler-plugins.selectorLabels" . | nindent 8 }}
+        component: controller
+    spec:
+      priorityClassName: {{ .Values.priorityClassName }}
+      serviceAccountName: {{ include "scheduler-plugins.fullname" . }}-controller
+      containers:
+        - name: controller
+          image: "{{ .Values.image.repository }}/{{ .Values.controller.image }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.controller.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.controller.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- if .Values.scheduler.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "scheduler-plugins.fullname" . }}-scheduler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "scheduler-plugins.labels" . | nindent 4 }}
+    component: scheduler
+spec:
+  replicas: {{ .Values.scheduler.replicaCount }}
+  {{- with .Values.scheduler.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "scheduler-plugins.selectorLabels" . | nindent 6 }}
+      component: scheduler
+  template:
+    metadata:
+      annotations:
+        checksum/configmap: '{{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}'
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "scheduler-plugins.selectorLabels" . | nindent 8 }}
+        component: scheduler
+    spec:
+      priorityClassName: {{ .Values.priorityClassName }}
+      serviceAccountName: {{ include "scheduler-plugins.fullname" . }}-scheduler
+      containers:
+        - command:
+          - /bin/kube-scheduler
+          - --config=/etc/kubernetes/scheduler-config.yaml
+          - --v={{ .Values.scheduler.verbosity }}
+          name: scheduler
+          image: "{{ .Values.image.repository }}/{{ .Values.scheduler.image }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.scheduler.imagePullPolicy }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 10259
+              scheme: HTTPS
+            initialDelaySeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 10259
+              scheme: HTTPS
+          resources:
+            {{- toYaml .Values.scheduler.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+          - name: scheduler-config
+            mountPath: /etc/kubernetes
+            readOnly: true
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.scheduler.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: scheduler-config
+        configMap:
+          name: {{ include "scheduler-plugins.fullname" . }}
+{{- end }}
