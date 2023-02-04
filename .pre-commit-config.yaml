@@ -12,3 +12,10 @@ repos:
     hooks:
       - id: yamllint
         args: [--format, parsable]
+  - repo: https://github.com/norwoodj/helm-docs
+    rev: v1.11.0
+    hooks:
+      - id: helm-docs
+        args:
+          - --sort-values-order=file
+          - --chart-search-root=charts

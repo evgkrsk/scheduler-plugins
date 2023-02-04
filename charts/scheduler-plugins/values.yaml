@@ -2,24 +2,35 @@ nameOverride: ""
 fullnameOverride: ""
 
 image:
+  # -- repository to fetch images from
   repository: registry.k8s.io
-  tag: ""                       # default is the chart appVersion
+  # -- default is the chart appVersion
+  tag: ""
 
-# allow User system:kube-scheduler to work with metrics and CRDs
+# -- allow User system:kube-scheduler to work with metrics and CRDs.
 # primary usage is to replace default-scheduler with custom one
 useForKubeSchedulerUser: false
 
 scheduler:
+  # -- deploy second scheduler as deployment
   enabled: false
+  # -- path to scheduler image from repository
   image: scheduler-plugins/kube-scheduler
   imagePullPolicy: IfNotPresent
+  # -- increase for HA mode
   replicaCount: 1
+  # -- enable for HA mode
   leaderElect: false
+  # -- Log level from 1 to 9
   verbosity: 1
+  # -- Query per second limit of calls to apiserver
   qps: 50
+  # -- 0 is default linear algorithm
   percentageOfNodesToScore: 0
   strategy:
+    # -- Deployment update strategy type
     type: RollingUpdate
+  # -- requests/limits for scheduler deployment
   resources: {}
     # limits:
     #   cpu: 1000m
@@ -27,19 +38,26 @@ scheduler:
     # requests:
     #   cpu: 100m
     #   memory: 128Mi
+  # -- affinity for deployment's pods
   affinity: {}
 
 controller:
+  # -- enable controller (needed for Coscheduling plugin)
   enabled: false
+  # -- path to controller image from repository
   image: scheduler-plugins/controller
   imagePullPolicy: IfNotPresent
+  # -- increase for HA mode
   replicaCount: 1
   strategy:
+    # -- Deployment update strategy type
     type: RollingUpdate
+  # -- requests/limits for controller deployment
   resources: {}
     # requests:
     #   cpu: 100m
     #   memory: 256Mi
+  # -- affinity for deployment's pods
   affinity: {}
 
 priorityClassName: system-node-critical
@@ -60,6 +78,7 @@ securityContext:
     drop:
       - ALL
 
+# scheduler framework plugins @ignored
 plugins:
   score:
     disabled:
@@ -69,6 +88,7 @@ plugins:
       - name: TargetLoadPacking
         weight: 1
 
+# plugin specific args @ignored
 pluginConfig:
   - name: RequestedToCapacityRatio
     args:
