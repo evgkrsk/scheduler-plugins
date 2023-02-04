@@ -3,6 +3,16 @@ entries:
   scheduler-plugins:
   - apiVersion: v2
     appVersion: v0.24.9
+    created: "2023-02-04T16:29:04.247900037Z"
+    description: Deploy scheduler-plugins as a default/second scheduler in cluster
+    digest: 8cf46f2ffb0f1b840cee7cc5bf49cb2c16e9b3230fd7858c957deccfa367fd24
+    name: scheduler-plugins
+    type: application
+    urls:
+    - https://github.com/evgkrsk/scheduler-plugins/releases/download/scheduler-plugins-0.2.3/scheduler-plugins-0.2.3.tgz
+    version: 0.2.3
+  - apiVersion: v2
+    appVersion: v0.24.9
     created: "2023-02-04T13:29:10.308795579Z"
     description: Deploy scheduler-plugins as a default/second scheduler in cluster
     digest: b6b7114351f6544671dbd80ac6eeccc6e26f7f0b133f279f11bad886a5b03abf
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/evgkrsk/scheduler-plugins/releases/download/scheduler-plugins-0.2.2/scheduler-plugins-0.2.2.tgz
     version: 0.2.2
-generated: "2023-02-04T13:29:10.308799879Z"
+generated: "2023-02-04T16:29:04.247916437Z"
