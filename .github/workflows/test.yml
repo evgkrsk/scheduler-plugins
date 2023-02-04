@@ -1,0 +1,19 @@
+name: Helm chart test workflow
+
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 6 * * 5" # Every friday at 6 AM
+
+jobs:
+  test:
+    name: test helm chart
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/setup-helm@v3.5
+      - name: helm lint
+        run: helm lint charts/scheduler-plugins
