@@ -109,3 +109,7 @@ pluginConfig:
       # metricProvider: # By default, `metricProviderType` is `KubernetesMetricsServer`
       #   type: Prometheus
       #   address: http://prometheus-k8s.monitoring.svc.cluster.local:9090
+
+schedulerConfig:
+  # -- scheduler config apiversion (ref: https://kubernetes.io/docs/reference/scheduling/config/)
+  apiVersion: kubescheduler.config.k8s.io/v1beta2
